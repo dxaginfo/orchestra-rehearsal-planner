@@ -1,0 +1,31 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rehearsaldb
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data
+  server:
+    build: ./server
+    volumes:
+      - ./server:/usr/src/app
+    ports:
+      - '5000:5000'
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/rehearsaldb
+    depends_on:
+      - db
+  client:
+    build: ./client
+    volumes:
+      - ./client:/usr/src/app
+    ports:
+      - '3000:3000'
+    depends_on:
+      - server
